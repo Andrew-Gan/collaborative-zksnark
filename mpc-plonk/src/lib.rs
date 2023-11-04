@@ -204,19 +204,26 @@ where
         dom: D,
     ) -> WiringProof<PC::Commitment, (F, PC::Proof)> {
         let timer = start_timer!(|| "prove_wiring");
+        let t0 = start_timer!(|| "00");
         let y = self.fs_rng.borrow_mut().gen::<F>();
         let z = self.fs_rng.borrow_mut().gen::<F>();
+        end_timer!(t0);
+        let t0 = start_timer!(|| "01");
         let p_evals = p.evaluate_over_domain_by_ref(dom);
         let w_evals = self.pk.w.evaluate_over_domain_by_ref(dom);
         let yx_z_evals =
             DensePolynomial::from_coefficients_vec(vec![z, y]).evaluate_over_domain_by_ref(dom);
         let num_evals = &(&p_evals + &(&w_evals * &y)) + &z;
         let den_evals = &(&p_evals + &yx_z_evals);
+        end_timer!(t0);
+        let t0 = start_timer!(|| "02");
         //TODO: batch!
         let l1_evals = &num_evals / &den_evals;
         let l1 = l1_evals.clone().interpolate();
         let (l1_cmt, l1, l1_rand) = self.commit("l1", l1, None, None).unwrap();
         let l1_prod_pf = self.prove_unit_product(&l1, &l1_cmt, &l1_rand, dom);
+        end_timer!(t0);
+        let t0 = start_timer!(|| "03");
         let l2_q_coeffs = {
             let mut l1_v = l1.coeffs.clone();
             let mut num_v = num_evals.interpolate().coeffs;
@@ -232,6 +239,8 @@ where
             dom.coset_ifft_in_place(&mut l1_den_v);
             l1_den_v
         };
+        end_timer!(t0);
+        let t0 = start_timer!(|| "04");
         let l2_q = DensePolynomial::from_coefficients_vec(l2_q_coeffs);
         let (l2_q_cmt, l2_q, l2_q_rand) = self.commit("l2_q", l2_q, None, None).unwrap();
         let x = self.fs_rng.borrow_mut().gen::<F>();
@@ -241,6 +250,7 @@ where
             .unwrap();
         let l1_x_open = self.eval(&l1, &l1_rand, &l1_cmt, x).unwrap();
         let p_x_open = self.eval(&p, &p_rand, &p_cmt, x).unwrap();
+        end_timer!(t0);
         //        debug_assert_eq!(
         //            (p_x_open.0 + y * x + z) * l1_x_open.0 - (p_x_open.0 + y * w_x_open.0 + z),
         //            l2_q_x_open.0 * dom.evaluate_vanishing_polynomial(x)
