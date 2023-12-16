@@ -30,6 +30,10 @@ use super::field::MpcField;
 use super::group::MpcGroup;
 use crate::Reveal;
 
+use std_ark_bls12_377::G1Affine as OtherG1Affine;
+use std_ark_ff::BigInteger256;
+use gpu_msm::*;
+
 #[derive(Derivative)]
 #[derivative(Default(bound = ""), Clone(bound = ""), Copy(bound = ""))]
 pub struct DummyPairingTripleSource<E, S> {
@@ -758,11 +762,17 @@ macro_rules! impl_aff_proj {
                                 // wat?
                                 val: if true {
                                     let t1 = start_timer!(|| "do msm");
+                                    let (points, scalars) =
+                                        util::generate_points_scalars::<OtherG1Affine>(1usize << bases.len(), 1);
+                                    let mut context = multi_scalar_mult_init(points.as_slice());
+                                    let r = multi_scalar_mult(&mut context, points.as_slice(), unsafe {
+                                        std::mem::transmute::<&[_], &[BigInteger256]>(scalars.as_slice())
+                                    });
+                                    end_timer!(t1);
                                     let r = <E::$aff as AffineCurve>::multi_scalar_mul(
                                         &bases,
                                         &pub_scalars,
                                     );
-                                    end_timer!(t1);
                                     let t1 = start_timer!(|| "cast");
                                     let r = MpcGroup::Shared(
                                         <PS::$share_proj as Reveal>::from_public(r),

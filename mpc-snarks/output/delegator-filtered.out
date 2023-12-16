@@ -1,0 +1,9 @@
+··End:     To king 1 ...............................................................677.013µs
+··End:     From king 1 .............................................................57.017µs
+··End:     Generating powers of G ..................................................5.915ms
+··End:     Generating powers of gamma * G ..........................................6.041ms
+··End:     Generating negative powers of h in G2 ...................................601ns
+··End:     Polynomial w of degree 47, degree bound None, and hiding bound None .....3.981ms
+··End:     Polynomial s of degree 15, degree bound None, and hiding bound None .....1.412ms
+··End:     commit: p ...............................................................21.682ms
+··End:     prove_public ............................................................34.976ms

@@ -1,0 +1,24 @@
+··End:     Generating powers of G ..................................................7.944ms
+··End:     Generating powers of gamma * G ..........................................6.059ms
+··End:     Generating negative powers of h in G2 ...................................1.142µs
+··End:     Polynomial w of degree 47, degree bound None, and hiding bound None .....3.965ms
+··End:     Polynomial s of degree 15, degree bound None, and hiding bound None .....1.408ms
+··End:     commit: p ...............................................................24.172ms
+··End:     prove_public ............................................................41.598ms
+··End:     prove_gates .............................................................84.372ms
+··End:     Checking evaluations ....................................................4.444ms
+··End:     Checking evaluations ....................................................4.063ms
+··End:     Checking evaluations ....................................................4.050ms
+··End:     Checking evaluations ....................................................4.027ms
+··End:     Checking evaluations ....................................................4.238ms
+··End:     Checking evaluations ....................................................4.275ms
+··End:     Checking evaluations ....................................................4.249ms
+··End:     Checking evaluations ....................................................4.031ms
+··End:     Checking evaluations ....................................................4.071ms
+··End:     Checking evaluations ....................................................4.080ms
+··End:     Checking evaluations ....................................................4.027ms
+··End:     Checking evaluations ....................................................3.887ms
+··End:     Checking evaluations ....................................................4.053ms
+··End:     Checking evaluations ....................................................4.047ms
+··End:     Checking evaluations ....................................................4.030ms
+··End:     Checking evaluations ....................................................4.244ms

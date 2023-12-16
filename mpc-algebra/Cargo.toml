@@ -5,9 +5,14 @@ authors = ["Alex Ozdemir <aozdemir@hmc.edu>"]
 edition = "2018"
 
 [dependencies]
+std-ark-ff = { package = "ark-ff", version = "0.3.0" }
+std-ark-bls12-377 = { package = "ark-bls12-377", version = "0.3.0" }
+gpu-msm = { path = "../gpu-msm" }
+
 ark-ff = { path = "../algebra/ff", version = "0.2.0", default-features = false }
 ark-poly = { path = "../algebra/poly", version = "0.2.0", default-features = false }
 ark-bls12-377 = { path = "../curves/bls12_377", version = "0.2.0", default-features = false, features = ["curve"] }
+std-ec = { package = "ark-ec", version = "0.3.0", features = [ "parallel" ] }
 ark-ec = { path = "../algebra/ec", version = "0.2.0", default-features = false }
 #ark-poly = { path = "../algebra/poly", version = "0.2.0", default-features = false }
 ark-relations = { path = "../snark/relations", version = "0.2.0", default-features = false }

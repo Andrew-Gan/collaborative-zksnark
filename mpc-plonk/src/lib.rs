@@ -204,26 +204,19 @@ where
         dom: D,
     ) -> WiringProof<PC::Commitment, (F, PC::Proof)> {
         let timer = start_timer!(|| "prove_wiring");
-        let t0 = start_timer!(|| "00");
         let y = self.fs_rng.borrow_mut().gen::<F>();
         let z = self.fs_rng.borrow_mut().gen::<F>();
-        end_timer!(t0);
-        let t0 = start_timer!(|| "01");
         let p_evals = p.evaluate_over_domain_by_ref(dom);
         let w_evals = self.pk.w.evaluate_over_domain_by_ref(dom);
         let yx_z_evals =
             DensePolynomial::from_coefficients_vec(vec![z, y]).evaluate_over_domain_by_ref(dom);
         let num_evals = &(&p_evals + &(&w_evals * &y)) + &z;
         let den_evals = &(&p_evals + &yx_z_evals);
-        end_timer!(t0);
-        let t0 = start_timer!(|| "02");
         //TODO: batch!
         let l1_evals = &num_evals / &den_evals;
         let l1 = l1_evals.clone().interpolate();
         let (l1_cmt, l1, l1_rand) = self.commit("l1", l1, None, None).unwrap();
         let l1_prod_pf = self.prove_unit_product(&l1, &l1_cmt, &l1_rand, dom);
-        end_timer!(t0);
-        let t0 = start_timer!(|| "03");
         let l2_q_coeffs = {
             let mut l1_v = l1.coeffs.clone();
             let mut num_v = num_evals.interpolate().coeffs;
@@ -239,8 +232,6 @@ where
             dom.coset_ifft_in_place(&mut l1_den_v);
             l1_den_v
         };
-        end_timer!(t0);
-        let t0 = start_timer!(|| "04");
         let l2_q = DensePolynomial::from_coefficients_vec(l2_q_coeffs);
         let (l2_q_cmt, l2_q, l2_q_rand) = self.commit("l2_q", l2_q, None, None).unwrap();
         let x = self.fs_rng.borrow_mut().gen::<F>();
@@ -250,7 +241,6 @@ where
             .unwrap();
         let l1_x_open = self.eval(&l1, &l1_rand, &l1_cmt, x).unwrap();
         let p_x_open = self.eval(&p, &p_rand, &p_cmt, x).unwrap();
-        end_timer!(t0);
         //        debug_assert_eq!(
         //            (p_x_open.0 + y * x + z) * l1_x_open.0 - (p_x_open.0 + y * w_x_open.0 + z),
         //            l2_q_x_open.0 * dom.evaluate_vanishing_polynomial(x)
@@ -310,23 +300,30 @@ where
         circ: &relations::flat::CircuitLayout<F>,
     ) -> GateProof<PC::Commitment, (F, PC::Proof)> {
         let timer = start_timer!(|| "prove_gates");
+        let timer2 = start_timer!(|| "prove_gates_00");
         let w = circ.domains.wires.group_gen;
         let pw = util::shift(p.polynomial().clone(), w);
         let pww = util::shift(p.polynomial().clone(), w * w);
         let d = &(&circ.s * &(p.polynomial() + &pw)
             + &(&(&circ.s * &-F::one()) + &F::one()) * &(p.polynomial() * &pw))
             - &pww;
+        end_timer!(timer2);
+        let timer3 = start_timer!(|| "prove_gates_01");
         let (q, _r) = DenseOrSparsePolynomial::DPolynomial(Cow::Owned(d))
             .divide_with_q_and_r(&DenseOrSparsePolynomial::SPolynomial(Cow::Owned(
                 circ.domains.gates.vanishing_polynomial(),
             )))
             .unwrap();
         // debug_assert!(r.is_zero());
+        end_timer!(timer3);
+        let timer3 = start_timer!(|| "prove_gates_02");
         let (q_cmt, q, q_rand) = self.commit("gates_q", q, None, None).unwrap();
         let x = self.fs_rng.borrow_mut().gen::<F>();
         let s_open = self
             .eval(&self.pk.s, &PC::Randomness::empty(), &self.pk.s_cmt, x)
             .unwrap();
+        end_timer!(timer3);
+        let timer4 = start_timer!(|| "prove_gates_03");
         let p_open = self.eval(p, p_rand, p_cmt, x).unwrap();
         let q_open = self.eval(&q, &q_rand, &q_cmt, x).unwrap();
         let p_w_open = self.eval(p, p_rand, p_cmt, w * x).unwrap();
@@ -336,6 +333,7 @@ where
         //                - p_w2_open.0,
         //            q_open.0 * circ.domains.gates.evaluate_vanishing_polynomial(x)
         //        );
+        end_timer!(timer4);
         end_timer!(timer);
         GateProof {
             q_cmt: q_cmt.commitment,

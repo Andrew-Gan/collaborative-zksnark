@@ -137,8 +137,10 @@ pub trait EvaluationDomain<F: FftField>:
     /// in place.
     #[inline]
     fn coset_fft_in_place<T: DomainCoeff<F>>(&self, coeffs: &mut Vec<T>) {
+        let timer = start_timer!(|| "FFT");
         Self::distribute_powers(coeffs, F::multiplicative_generator());
         self.fft_in_place(coeffs);
+        end_timer!(timer);
     }
 
     /// Compute a IFFT over a coset of the domain.
@@ -153,8 +155,10 @@ pub trait EvaluationDomain<F: FftField>:
     /// place.
     #[inline]
     fn coset_ifft_in_place<T: DomainCoeff<F>>(&self, evals: &mut Vec<T>) {
+        let timer = start_timer!(|| "IFFT");
         self.ifft_in_place(evals);
         Self::distribute_powers(evals, F::multiplicative_generator().inverse().unwrap());
+        end_timer!(timer);
     }
 
     /// Evaluate all the lagrange polynomials defined by this domain at the

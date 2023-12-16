@@ -13,7 +13,9 @@ impl VariableBaseMSM {
         bases: &[G],
         scalars: &[<G::ScalarField as PrimeField>::BigInt],
     ) -> G::Projective {
+
         let size = ark_std::cmp::min(bases.len(), scalars.len());
+        println!("msm size = {}", size);
         let scalars = &scalars[..size];
         let bases = &bases[..size];
         let scalars_and_bases_iter = scalars.iter().zip(bases).filter(|(s, _)| !s.is_zero());

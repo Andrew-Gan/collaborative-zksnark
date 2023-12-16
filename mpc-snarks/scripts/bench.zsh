@@ -54,11 +54,9 @@ case $infra in
           if [ $i -eq 0 ]
           then
             $BIN -p $proof -c squaring --computation-size $size mpc --hosts $NETWORK_CONFIG --party $i --alg $infra > output/delegator_full.out &
-            cat output/delegator_full.out | rg "^··End:" > output/delegator_filtered.out
             pid=$!
           else
             $BIN -p $proof -c squaring --computation-size $size mpc --hosts $NETWORK_CONFIG --party $i --alg $infra > output/party${i}_full.out &
-            cat output/party${i}_full.out | rg "^··End:" > output/party${i}_filtered.out
             pid=$!
           fi
           PROCS+=($pid)
